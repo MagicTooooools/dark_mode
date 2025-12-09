@@ -6,6 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // 加载已保存的URL列表
   loadUrls();
 
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }, tabs => {
+    let fullUrl = tabs[0].url;
+    const baseUrl = extractBaseUrl(fullUrl);
+    console.log(baseUrl);
+    urlInput.value = baseUrl;
+  });
+
   addButton.addEventListener('click', function() {
     const url = urlInput.value.trim();
     if (url) {
@@ -33,8 +40,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  function extractBaseUrl(fullUrl) {
+    try {
+      const u = new URL(fullUrl);
+      return `${u.protocol}//${u.hostname}`;
+    } catch (e) {
+      return ""; // 若不是合法URL
+    }
+  }
+
   function displayUrls(urls) {
-    urlList.innerHTML = '';
+    urlList.innerHTML = ""
     urls.forEach(url => {
       const div = document.createElement('div');
       div.className = 'url-item';
